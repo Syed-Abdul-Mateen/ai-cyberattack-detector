@@ -1,0 +1,15 @@
+# Ignore virtual environments
+venv/
+
+# Ignore logs
+*.log
+__pycache__/
+*.pyc
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore PDFs if not needed
+# *.pdf
+"venv/" 

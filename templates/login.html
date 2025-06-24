@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cyber Dashboard – Secure Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #00ffe1;
+      --bg-dark: #0e1116;
+      --glass-bg: rgba(18, 22, 27, 0.85);
+      --input-bg: rgba(255, 255, 255, 0.04);
+      --border-glow: rgba(0, 255, 225, 0.4);
+      --font: 'Segoe UI', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      background: var(--bg-dark);
+      font-family: var(--font);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--primary);
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .container {
+      z-index: 1;
+      background: var(--glass-bg);
+      padding: 40px;
+      width: 360px;
+      border-radius: 16px;
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 0 25px rgba(0, 255, 225, 0.1);
+      backdrop-filter: blur(20px);
+      animation: floatIn 0.8s ease-out;
+    }
+
+    @keyframes floatIn {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      color: var(--primary);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      background: var(--input-bg);
+      border: 1px solid transparent;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      color: var(--primary);
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    input::placeholder {
+      color: rgba(0, 255, 225, 0.5);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--border-glow);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary);
+      border: none;
+      color: #0e1116;
+      font-weight: bold;
+      font-size: 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00ddc1;
+    }
+
+    .error {
+      color: #ff4d4d;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .footer {
+      margin-top: 25px;
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    @media (max-width: 420px) {
+      .container {
+        width: 90%;
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="matrix"></canvas>
+
+  <div class="container">
+    <h2>Secure Login</h2>
+    <form method="post">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <div class="footer">
+      Forgot password? <a href="#">Recover here</a>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    // Full screen
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+    const letters = "01";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array.from({ length: columns }, () => 1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(14, 17, 22, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#00ffe1";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+
+        drops[i]++;
+      }
+    }
+
+    setInterval(drawMatrix, 33);
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cybersecurity Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #0f1117;
+            padding: 20px;
+            color: #00ffe1;
+        }
+
+        h1, h2 {
+            color: #00ffe1;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: 0.3s ease;
+        }
+
+        .start { background-color: #4CAF50; color: white; }
+        .stop { background-color: #f44336; color: white; }
+        .clear { background-color: #ff9800; color: white; }
+        .download { background-color: #2196F3; color: white; }
+        .logout { background-color: #9e9e9e; color: white; }
+
+        #logs {
+            background: #1a1d24;
+            padding: 15px;
+            border-radius: 10px;
+            height: 250px;
+            overflow-y: scroll;
+            font-family: monospace;
+            border: 1px solid #00ffe1;
+        }
+
+        img#graph-img {
+            margin-top: 20px;
+            border: 1px solid #00ffe1;
+            border-radius: 10px;
+            max-width: 100%;
+        }
+
+        .center-chart {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        canvas#ipChart {
+            max-width: 300px;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🛡️ Cybersecurity Dashboard</h1>
+
+    <button class="start" onclick="startSniffer()">🚀 Start Monitoring</button>
+    <button class="stop" onclick="stopSniffer()">🛑 Stop Monitoring</button>
+    <button class="clear" onclick="clearAll()">🧼 Clear All</button>
+    <a href="/download-graph"><button class="download">⬇ Download Graph</button></a>
+    <a href="/generate-report"><button class="download">📄 Generate PDF Report</button></a>
+    <a href="/logout"><button class="logout">🚪 Logout</button></a>
+
+    <h2>📜 Logs</h2>
+    <div id="logs"><p><i>Waiting for logs...</i></p></div>
+
+    <h2>🕸️ Attack Path Graph</h2>
+    <img id="graph-img" src="/static/graph.png?0" width="800px" />
+
+    <h2>📊 Top Suspicious IPs</h2>
+    <div class="center-chart">
+        <canvas id="ipChart"></canvas>
+    </div>
+
+    <script>
+        function rand() {
+            return Math.random();
+        }
+
+        function startSniffer() {
+            fetch('/start');
+        }
+
+        function stopSniffer() {
+            fetch('/stop');
+        }
+
+        function clearAll() {
+            fetch('/clear');
+        }
+
+        function fetchLogs() {
+            fetch('/logs')
+                .then(res => res.json())
+                .then(data => {
+                    const logBox = document.getElementById("logs");
+                    logBox.innerHTML = data.map(line => `<p>${line}</p>`).join('');
+                });
+        }
+
+        function updateGraphImage() {
+            const img = document.getElementById("graph-img");
+            img.src = "/static/graph.png?" + rand();
+        }
+
+        const ctx = document.getElementById('ipChart').getContext('2d');
+        const ipChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Attack Count',
+                    data: [],
+                    backgroundColor: ['#ff4c4c', '#ff9933', '#3399ff', '#66cc66', '#cc66ff']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        function fetchChartData() {
+            fetch('/chart-data')
+                .then(res => res.json())
+                .then(data => {
+                    ipChart.data.labels = data.labels;
+                    ipChart.data.datasets[0].data = data.data;
+                    ipChart.update();
+                });
+        }
+
+        setInterval(fetchLogs, 2000);
+        setInterval(updateGraphImage, 5000);
+        setInterval(fetchChartData, 3000);
+    </script>
+</body>
+</html>
